@@ -1,0 +1,17 @@
+server {
+  listen 80;
+  server_name your-domain.com;
+
+  root /app/public;  # Adjust the path to where your static files are located
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+
+  # Optionally, you can add caching settings:
+  location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg|eot)$ {
+    expires 1y;
+    add_header Cache-Control "public, no-transform";
+  }
+}
