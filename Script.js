@@ -1,11 +1,14 @@
-const API_KEY = "79e8ec2f74974866aefd318936e14e4d";
+require('dotenv').config(); // Use dotenv to load environment variables
+const API_KEY = process.env.TWELVE_DATA_API_KEY; // Get the API key from the environment variable
 let chart;
 
-document.getElementById('pairSelect').addEventListener('change', function() {
+// Event listener for selecting currency pairs
+document.getElementById('pairSelect').addEventListener('change', function () {
     const selectedPair = this.value;
     fetchDataForSelectedPair(selectedPair);
 });
 
+// Fetch data for the selected currency pair
 function fetchDataForSelectedPair(pair) {
     const url = `https://api.twelvedata.com/time_series?symbol=${pair}&interval=5min&apikey=${API_KEY}`;
     fetch(url)
@@ -14,7 +17,7 @@ function fetchDataForSelectedPair(pair) {
             if (data.status === "ok") {
                 const timeSeries = data.values;
                 const labels = timeSeries.map(item => item.datetime);
-                const prices = timeSeries.map(item => item.close);
+                const prices = timeSeries.map(item => parseFloat(item.close));
 
                 const support = Math.min(...prices);
                 const resistance = Math.max(...prices);
@@ -32,6 +35,7 @@ function fetchDataForSelectedPair(pair) {
         });
 }
 
+// Update the chart with the new data
 function updateChart(labels, prices) {
     if (chart) {
         chart.destroy();
@@ -66,6 +70,7 @@ function updateChart(labels, prices) {
     });
 }
 
+// Check if the current price is near support or resistance levels
 function checkSupportResistance(currentPrice, support, resistance) {
     let alertMessage = '';
     if (currentPrice <= support) {
@@ -77,6 +82,7 @@ function checkSupportResistance(currentPrice, support, resistance) {
     document.getElementById('alertMessage').innerText = alertMessage;
 }
 
+// Screen recording functionality
 let mediaRecorder;
 let recordedChunks = [];
 
@@ -87,11 +93,11 @@ function startRecording() {
                 mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.start();
 
-                mediaRecorder.ondataavailable = function(event) {
+                mediaRecorder.ondataavailable = function (event) {
                     recordedChunks.push(event.data);
                 };
 
-                mediaRecorder.onstop = function() {
+                mediaRecorder.onstop = function () {
                     const blob = new Blob(recordedChunks, { type: 'video/webm' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
